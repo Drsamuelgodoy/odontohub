@@ -44,7 +44,8 @@ import {
   Pencil,
   Mail,
   Download,
-  LinkIcon
+  LinkIcon,
+  BookOpen
 } from './icons';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Odontogram } from './components/Odontogram';
@@ -58,6 +59,7 @@ import { PreAtendimento } from './components/PreAtendimento';
 import { PatientPortal } from './components/PatientPortal';
 import { PortalInbox } from './components/PortalInbox';
 import { MLInsights } from './components/MLInsights';
+import { Academy, AcademyPatients, AcademyAgenda, AcademyStudy, AcademyChecklist } from './components/Academy';
 import { formatDate, isOverdue, getFreeSlots, getSuggestion, FreeSlot } from './utils/dateUtils';
 
 // Types
@@ -368,7 +370,7 @@ const LegacyClinicalRedirect = () => {
 
 export default function App() {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'agenda' | 'pacientes' | 'financeiro' | 'documentos' | 'prontuario' | 'configuracoes' | 'admin' | 'portal' | 'inteligencia'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'agenda' | 'pacientes' | 'financeiro' | 'documentos' | 'prontuario' | 'configuracoes' | 'admin' | 'portal' | 'inteligencia' | 'academy'>('dashboard');
   const [patients, setPatients] = useState<Patient[]>([]);
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
@@ -581,6 +583,7 @@ export default function App() {
     return filtered.sort((a, b) => new Date(a.start_time).getTime() - new Date(b.start_time).getTime());
   }, [appointments, statusFilter, agendaSearchTerm, agendaViewMode, selectedDate]);
   const [agendaFocusMode, setAgendaFocusMode] = useState(true);
+  const [academyView, setAcademyView] = useState<'home' | 'pacientes' | 'agenda' | 'estudos' | 'checklist'>('home');
 
   // ─── Agenda date navigation helper ───────────────────────────────────
   const navigateDate = useCallback((direction: 'prev' | 'next' | 'today') => {
@@ -2583,6 +2586,7 @@ export default function App() {
           <SidebarItem id="dashboard" icon={Home} label="Início" activeTab={activeTab} setActiveTab={setActiveTab} setIsSidebarOpen={setIsSidebarOpen} navigate={navigate} />
           <SidebarItem id="agenda" icon={Calendar} label="Agenda" activeTab={activeTab} setActiveTab={setActiveTab} setIsSidebarOpen={setIsSidebarOpen} navigate={navigate} />
           <SidebarItem id="pacientes" icon={Users} label="Pacientes" activeTab={activeTab} setActiveTab={setActiveTab} setIsSidebarOpen={setIsSidebarOpen} navigate={navigate} />
+          <SidebarItem id="academy" icon={BookOpen} label="Academy" activeTab={activeTab} setActiveTab={setActiveTab} setIsSidebarOpen={setIsSidebarOpen} navigate={navigate} />
           <SidebarItem id="financeiro" icon={DollarSign} label="Financeiro" activeTab={activeTab} setActiveTab={setActiveTab} setIsSidebarOpen={setIsSidebarOpen} navigate={navigate} />
           <SidebarItem id="documentos" icon={FileText} label="Documentos" activeTab={activeTab} setActiveTab={setActiveTab} setIsSidebarOpen={setIsSidebarOpen} navigate={navigate} />
           <SidebarItem id="inteligencia" icon={Sparkles} label="Inteligência ML" activeTab={activeTab} setActiveTab={setActiveTab} setIsSidebarOpen={setIsSidebarOpen} navigate={navigate} />
@@ -4853,6 +4857,26 @@ export default function App() {
 
             {activeTab === 'inteligencia' && (
               <MLInsights openPatientRecord={openPatientRecord} />
+            )}
+
+            {activeTab === 'academy' && (
+              <>
+                {academyView === 'home' && (
+                  <Academy user={user} onNavigate={setAcademyView} />
+                )}
+                {academyView === 'pacientes' && (
+                  <AcademyPatients />
+                )}
+                {academyView === 'agenda' && (
+                  <AcademyAgenda />
+                )}
+                {academyView === 'estudos' && (
+                  <AcademyStudy />
+                )}
+                {academyView === 'checklist' && (
+                  <AcademyChecklist />
+                )}
+              </>
             )}
 
             {activeTab === 'configuracoes' && profile && (
